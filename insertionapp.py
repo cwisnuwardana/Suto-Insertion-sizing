@@ -104,7 +104,7 @@ installation_rules = {
 st.image("suto_logo.png", width=460)
 st.title("SUTO Flowmeter Installation Calculator")
 
-st.write("Thermal Mass Flowmeter Installation Tool")
+st.write("SUTO Flowmeter Installation Tool")
 
 st.divider()
 
