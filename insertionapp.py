@@ -1,4 +1,9 @@
 import streamlit as st
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer
+from reportlab.lib.styles import getSampleStyleSheet
+from io import BytesIO
 
 # =====================================================
 # PAGE CONFIG
@@ -96,10 +101,9 @@ installation_rules = {
 # TITLE
 # =====================================================
 
-st.image("suto_logo.png", width=360)
 st.title("SUTO Flowmeter Installation Calculator")
 
-st.write("SUTO Flowmeter Installation Tool")
+st.write("Thermal Mass Flowmeter Installation Tool")
 
 st.divider()
 
@@ -255,4 +259,66 @@ with right_col:
     st.write(
         f"Point-to-Point Distance: "
         f"{point_to_point_mm:.2f} mm ({total_D}D)"
+    )
+
+    # =====================================================
+    # PDF GENERATOR
+    # =====================================================
+
+    def generate_pdf():
+
+        buffer = BytesIO()
+
+        doc = SimpleDocTemplate(
+            buffer,
+            pagesize=A4
+        )
+
+        styles = getSampleStyleSheet()
+
+        elements = []
+
+        title = Paragraph(
+            "<b>SUTO Flowmeter Installation Report</b>",
+            styles['Title']
+        )
+
+        elements.append(title)
+        elements.append(Spacer(1, 20))
+
+        data = [
+            f"Customer: {customer}",
+            f"Flowmeter Type: {flowmeter}",
+            f"Pipe Size: {pipe_size}",
+            f"Pipe Schedule: {pipe_schedule}",
+            f"Installation Condition: {installation_condition}",
+            f"Installation Mode: {installation_mode}",
+            f"Outer Diameter (OD): {od:.2f} mm",
+            f"Wall Thickness (WT): {wt:.2f} mm",
+            f"Inner Diameter (ID): {id_mm:.2f} mm",
+            f"Insertion Depth: {insertion_depth:.2f} mm",
+            f"Upstream Distance: {upstream_mm:.2f} mm ({upstream_D}D)",
+            f"Downstream Distance: {downstream_mm:.2f} mm ({downstream_D}D)",
+            f"Point-to-Point Distance: {point_to_point_mm:.2f} mm ({total_D}D)"
+        ]
+
+        for item in data:
+            p = Paragraph(item, styles['BodyText'])
+            elements.append(p)
+            elements.append(Spacer(1, 10))
+
+        doc.build(elements)
+
+        pdf = buffer.getvalue()
+        buffer.close()
+
+        return pdf
+
+    pdf_file = generate_pdf()
+
+    st.download_button(
+        label="Download PDF Report",
+        data=pdf_file,
+        file_name="suto_installation_report.pdf",
+        mime="application/pdf"
     )
