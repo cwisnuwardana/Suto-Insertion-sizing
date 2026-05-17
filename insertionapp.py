@@ -271,41 +271,128 @@ with right_col:
 
         doc = SimpleDocTemplate(
             buffer,
-            pagesize=A4
+            pagesize=A4,
+            rightMargin=40,
+            leftMargin=40,
+            topMargin=40,
+            bottomMargin=40
         )
 
         styles = getSampleStyleSheet()
 
         elements = []
 
+        from reportlab.platypus import Image as RLImage
+        from reportlab.platypus import Table
+        from reportlab.platypus import TableStyle
+        from reportlab.lib import colors
+        from reportlab.lib.enums import TA_CENTER
+        from reportlab.lib.styles import ParagraphStyle
+
+        # =================================================
+        # LOGO
+        # =================================================
+
+        try:
+            logo = RLImage("suto_logo.png")
+            logo.drawHeight = 50
+            logo.drawWidth = 200
+            elements.append(logo)
+        except:
+            pass
+
+        elements.append(Spacer(1, 20))
+
+        # =================================================
+        # TITLE
+        # =================================================
+
+        title_style = ParagraphStyle(
+            'title_style',
+            parent=styles['Heading1'],
+            alignment=TA_CENTER,
+            textColor=colors.HexColor('#00A651'),
+            fontSize=22,
+            leading=28
+        )
+
         title = Paragraph(
-            "<b>SUTO Flowmeter Installation Report</b>",
-            styles['Title']
+            "SUTO Flowmeter Installation Report",
+            title_style
         )
 
         elements.append(title)
-        elements.append(Spacer(1, 20))
+        elements.append(Spacer(1, 25))
 
-        data = [
-            f"Customer: {customer}",
-            f"Flowmeter Type: {flowmeter}",
-            f"Pipe Size: {pipe_size}",
-            f"Pipe Schedule: {pipe_schedule}",
-            f"Installation Condition: {installation_condition}",
-            f"Installation Mode: {installation_mode}",
-            f"Outer Diameter (OD): {od:.2f} mm",
-            f"Wall Thickness (WT): {wt:.2f} mm",
-            f"Inner Diameter (ID): {id_mm:.2f} mm",
-            f"Insertion Depth: {insertion_depth:.2f} mm",
-            f"Upstream Distance: {upstream_mm:.2f} mm ({upstream_D}D)",
-            f"Downstream Distance: {downstream_mm:.2f} mm ({downstream_D}D)",
-            f"Point-to-Point Distance: {point_to_point_mm:.2f} mm ({total_D}D)"
+        # =================================================
+        # TABLE DATA
+        # =================================================
+
+        table_data = [
+            ["Parameter", "Value"],
+            ["Customer", customer],
+            ["Flowmeter Type", flowmeter],
+            ["Pipe Size", pipe_size],
+            ["Pipe Schedule", pipe_schedule],
+            ["Installation Condition", installation_condition],
+            ["Installation Mode", installation_mode],
+            ["Outer Diameter (OD)", f"{od:.2f} mm"],
+            ["Wall Thickness (WT)", f"{wt:.2f} mm"],
+            ["Inner Diameter (ID)", f"{id_mm:.2f} mm"],
+            ["Insertion Depth", f"{insertion_depth:.2f} mm"],
+            ["Upstream Distance", f"{upstream_mm:.2f} mm ({upstream_D}D)"],
+            ["Downstream Distance", f"{downstream_mm:.2f} mm ({downstream_D}D)"],
+            ["Point-to-Point Distance", f"{point_to_point_mm:.2f} mm ({total_D}D)"]
         ]
 
-        for item in data:
-            p = Paragraph(item, styles['BodyText'])
-            elements.append(p)
-            elements.append(Spacer(1, 10))
+        table = Table(
+            table_data,
+            colWidths=[220, 250]
+        )
+
+        table.setStyle(TableStyle([
+
+            ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#00A651')),
+            ('TEXTCOLOR', (0, 0), (-1, 0), colors.white),
+            ('FONTNAME', (0, 0), (-1, 0), 'Helvetica-Bold'),
+            ('FONTSIZE', (0, 0), (-1, 0), 12),
+            ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
+
+            ('BACKGROUND', (0, 1), (-1, -1), colors.whitesmoke),
+            ('TEXTCOLOR', (0, 1), (-1, -1), colors.black),
+
+            ('GRID', (0, 0), (-1, -1), 1, colors.grey),
+
+            ('FONTNAME', (0, 1), (0, -1), 'Helvetica-Bold'),
+            ('FONTNAME', (1, 1), (1, -1), 'Helvetica'),
+
+            ('FONTSIZE', (0, 1), (-1, -1), 11),
+
+            ('ROWBACKGROUNDS', (0, 1), (-1, -1), [
+                colors.whitesmoke,
+                colors.HexColor('#F4FFF8')
+            ]),
+
+            ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+
+            ('BOTTOMPADDING', (0, 1), (-1, -1), 10),
+            ('TOPPADDING', (0, 1), (-1, -1), 10)
+        ]))
+
+        elements.append(table)
+
+        elements.append(Spacer(1, 30))
+
+        # =================================================
+        # FOOTER NOTE
+        # =================================================
+
+        footer = Paragraph(
+            "<i>This report is automatically generated by the SUTO Flowmeter Installation Calculator.</i>",
+            styles['Italic']
+        )
+
+        elements.append(footer)
 
         doc.build(elements)
 
