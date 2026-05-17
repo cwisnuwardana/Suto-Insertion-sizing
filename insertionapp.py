@@ -1,18 +1,18 @@
 import streamlit as st
 from PIL import Image
 
-# =========================================================
+# =====================================================
 # PAGE CONFIG
-# =========================================================
+# =====================================================
 
 st.set_page_config(
     page_title="SUTO S401 Installation Calculator",
     layout="wide"
 )
 
-# =========================================================
+# =====================================================
 # DATABASE
-# =========================================================
+# =====================================================
 
 pipe_database = {
 
@@ -56,24 +56,25 @@ installation_rules = {
     }
 }
 
-# =========================================================
-# HEADER
-# =========================================================
+# =====================================================
+# TITLE
+# =====================================================
 
 st.title("SUTO S401 Installation Calculator")
-st.subheader("Thermal Mass Flow Meter (Insertion)")
+
+st.write("Thermal Mass Flow Meter Installation Tool")
 
 st.divider()
 
-# =========================================================
+# =====================================================
 # LAYOUT
-# =========================================================
+# =====================================================
 
 left_col, right_col = st.columns([1, 2])
 
-# =========================================================
-# LEFT SIDE INPUT
-# =========================================================
+# =====================================================
+# LEFT INPUT
+# =====================================================
 
 with left_col:
 
@@ -116,18 +117,13 @@ with left_col:
     )
 
     valve_height = st.number_input(
-        "Height of Valve (mm)",
+        "Valve Height (mm)",
         value=87.0
     )
 
-    calculate = st.button(
-        "GENERATE INSTALLATION",
-        use_container_width=True
-    )
-
-# =========================================================
+# =====================================================
 # CALCULATION
-# =========================================================
+# =====================================================
 
 pipe_data = pipe_database[pipe_size]
 
@@ -149,95 +145,82 @@ downstream_distance = inner_diameter * downstream_D
 
 point_to_point = upstream_distance + downstream_distance
 
-# =========================================================
+# =====================================================
 # INSTALLATION MODE
-# =========================================================
+# =====================================================
 
 if inner_diameter > 200:
     installation_mode = "100 mm OFF-CENTER"
 else:
     installation_mode = "CENTER INSTALLATION"
 
-# =========================================================
-# RIGHT SIDE OUTPUT
-# =========================================================
+# =====================================================
+# RIGHT OUTPUT
+# =====================================================
 
 with right_col:
 
-    st.header("OUTPUT - INSTALLATION SUMMARY")
+    st.header("OUTPUT SUMMARY")
 
-    metric1, metric2, metric3 = st.columns(3)
+    col1, col2, col3 = st.columns(3)
 
-    metric1.metric(
+    col1.metric(
         "Insertion Depth",
         f"{insertion_depth:.2f} mm"
     )
 
-    metric2.metric(
-        "Upstream Distance",
+    col2.metric(
+        "Upstream",
         f"{upstream_distance:.2f} mm"
     )
 
-    metric3.metric(
-        "Downstream Distance",
+    col3.metric(
+        "Downstream",
         f"{downstream_distance:.2f} mm"
     )
 
     st.divider()
 
-    # =====================================================
-    # INSTALLATION RESULT TABLE
-    # =====================================================
-
     st.subheader("Calculation Result")
 
-    st.write(f"**Customer:** {customer}")
+    st.write(f"Customer: {customer}")
 
-    st.write(f"**Flowmeter:** {flowmeter}")
+    st.write(f"Flowmeter: {flowmeter}")
 
-    st.write(f"**Pipe Size:** {pipe_size}")
+    st.write(f"Condition: {condition}")
 
-    st.write(f"**Pipe Schedule:** {schedule}")
+    st.write(f"Installation Mode: {installation_mode}")
 
-    st.write(f"**Installation Condition:** {condition}")
+    st.write(f"Outer Diameter (OD): {od:.2f} mm")
 
-    st.write(f"**Installation Mode:** {installation_mode}")
+    st.write(f"Wall Thickness (WT): {wt:.2f} mm")
 
-    st.divider()
+    st.write(f"Inner Diameter (ID): {inner_diameter:.2f} mm")
 
-    st.write(f"### Pipe Information")
+    st.write(f"Insertion Depth: {insertion_depth:.2f} mm")
 
-    st.write(f"Outer Diameter (OD): **{od:.2f} mm**")
+    st.write(f"Upstream Distance: {upstream_distance:.2f} mm")
 
-    st.write(f"Wall Thickness (WT): **{wt:.2f} mm**")
+    st.write(f"Downstream Distance: {downstream_distance:.2f} mm")
 
-    st.write(f"Inner Diameter (ID): **{inner_diameter:.2f} mm**")
-
-    st.divider()
-
-    st.write(f"### Installation Distance")
-
-    st.write(f"Upstream Distance: **{upstream_distance:.2f} mm**")
-
-    st.write(f"Downstream Distance: **{downstream_distance:.2f} mm**")
-
-    st.write(f"Point-to-Point Distance: **{point_to_point:.2f} mm**")
+    st.write(f"Point-to-Point Distance: {point_to_point:.2f} mm")
 
     st.divider()
-
-    # =====================================================
-    # IMAGE
-    # =====================================================
 
     st.subheader("Installation Diagram")
 
-    image = Image.open("s401_installation.png")
+    try:
 
-    st.image(
-        image,
-        use_container_width=True
-    )
+        image = Image.open("assets/s401_installation.png")
 
-    st.success(
-        f"Minimum Point-to-Point Distance Required = {point_to_point:.2f} mm"
-    )
+        st.image(
+            image,
+            use_container_width=True
+        )
+
+    except:
+
+        st.error(
+            "Image not found. "
+            "Please upload assets/s401_installation.png"
+        )
