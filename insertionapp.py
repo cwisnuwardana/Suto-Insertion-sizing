@@ -1,26 +1,18 @@
-# ============================================================
-# SUTO S401 INSTALLATION CALCULATOR
-# PROFESSIONAL ENGINEERING GUI
-# ============================================================
-
-import streamlit as st 
+import streamlit as st
 from PIL import Image
-import math
 
-# ============================================================
-# WINDOW SETUP
-# ============================================================
+# =========================================================
+# PAGE CONFIG
+# =========================================================
 
-ctk.set_appearance_mode("light")
-ctk.set_default_color_theme("green")
+st.set_page_config(
+    page_title="SUTO S401 Installation Calculator",
+    layout="wide"
+)
 
-app = ctk.CTk()
-app.title("SUTO S401 Installation Calculator")
-app.geometry("1600x900")
-
-# ============================================================
+# =========================================================
 # DATABASE
-# ============================================================
+# =========================================================
 
 pipe_database = {
 
@@ -64,255 +56,188 @@ installation_rules = {
     }
 }
 
-# ============================================================
-# MAIN LAYOUT
-# ============================================================
-
-left_frame = ctk.CTkFrame(app, width=420)
-left_frame.pack(side="left", fill="y", padx=10, pady=10)
-
-right_frame = ctk.CTkFrame(app)
-right_frame.pack(side="right", fill="both", expand=True, padx=10, pady=10)
-
-# ============================================================
-# LEFT SIDE - INPUT
-# ============================================================
-
-title = ctk.CTkLabel(
-    left_frame,
-    text="INPUT DATA",
-    font=("Arial", 24, "bold")
-)
-title.pack(pady=20)
-
-# CUSTOMER
-
-customer_label = ctk.CTkLabel(left_frame, text="Customer")
-customer_label.pack(anchor="w", padx=20)
-
-customer_entry = ctk.CTkEntry(left_frame, width=350)
-customer_entry.pack(padx=20, pady=10)
-
-# FLOWMETER
-
-flowmeter_label = ctk.CTkLabel(left_frame, text="Flowmeter Type")
-flowmeter_label.pack(anchor="w", padx=20)
-
-flowmeter_option = ctk.CTkOptionMenu(
-    left_frame,
-    values=["S401-S", "S401-M", "S401-H"]
-)
-flowmeter_option.pack(padx=20, pady=10)
+# =========================================================
+# HEADER
+# =========================================================
 
-# INSTALLATION CONDITION
+st.title("SUTO S401 Installation Calculator")
+st.subheader("Thermal Mass Flow Meter (Insertion)")
 
-condition_label = ctk.CTkLabel(left_frame, text="Installation Condition")
-condition_label.pack(anchor="w", padx=20)
+st.divider()
 
-condition_option = ctk.CTkOptionMenu(
-    left_frame,
-    values=[
-        "90° Elbow",
-        "Valve",
-        "Tee"
-    ]
-)
-condition_option.pack(padx=20, pady=10)
+# =========================================================
+# LAYOUT
+# =========================================================
 
-# PIPE SIZE
+left_col, right_col = st.columns([1, 2])
 
-pipe_label = ctk.CTkLabel(left_frame, text="Pipe Size")
-pipe_label.pack(anchor="w", padx=20)
+# =========================================================
+# LEFT SIDE INPUT
+# =========================================================
 
-pipe_option = ctk.CTkOptionMenu(
-    left_frame,
-    values=list(pipe_database.keys())
-)
-pipe_option.pack(padx=20, pady=10)
+with left_col:
 
-# PIPE SCHEDULE
+    st.header("INPUT DATA")
 
-schedule_label = ctk.CTkLabel(left_frame, text="Pipe Schedule")
-schedule_label.pack(anchor="w", padx=20)
+    customer = st.text_input(
+        "Customer",
+        value="PT. ABC Pneumatic"
+    )
 
-schedule_option = ctk.CTkOptionMenu(
-    left_frame,
-    values=["SCH40", "SCH80"]
-)
-schedule_option.pack(padx=20, pady=10)
+    flowmeter = st.selectbox(
+        "Flowmeter Type",
+        [
+            "S401-S",
+            "S401-M",
+            "S401-H"
+        ]
+    )
 
-# BALL VALVE HEIGHT
+    condition = st.selectbox(
+        "Installation Condition",
+        [
+            "90° Elbow",
+            "Valve",
+            "Tee"
+        ]
+    )
 
-valve_label = ctk.CTkLabel(
-    left_frame,
-    text="Height of Valve (mm)"
-)
-valve_label.pack(anchor="w", padx=20)
+    pipe_size = st.selectbox(
+        "Pipe Size",
+        list(pipe_database.keys())
+    )
 
-valve_entry = ctk.CTkEntry(left_frame, width=350)
-valve_entry.insert(0, "87")
-valve_entry.pack(padx=20, pady=10)
+    schedule = st.selectbox(
+        "Pipe Schedule",
+        [
+            "SCH40",
+            "SCH80"
+        ]
+    )
 
-# ============================================================
-# OUTPUT LABELS
-# ============================================================
+    valve_height = st.number_input(
+        "Height of Valve (mm)",
+        value=87.0
+    )
 
-result_title = ctk.CTkLabel(
-    right_frame,
-    text="OUTPUT - INSTALLATION SUMMARY",
-    font=("Arial", 24, "bold")
-)
-result_title.pack(pady=20)
+    calculate = st.button(
+        "GENERATE INSTALLATION",
+        use_container_width=True
+    )
 
-result_box = ctk.CTkTextbox(
-    right_frame,
-    width=500,
-    height=250,
-    font=("Consolas", 18)
-)
-result_box.pack(pady=20)
+# =========================================================
+# CALCULATION
+# =========================================================
 
-# ============================================================
-# IMAGE PREVIEW
-# ============================================================
+pipe_data = pipe_database[pipe_size]
 
-image = ctk.CTkImage(
-    light_image=Image.open("s401_installation.png"),
-    size=(800, 500)
-)
+od = pipe_data["od"]
 
-image_label = ctk.CTkLabel(
-    right_frame,
-    image=image,
-    text=""
-)
+wt = pipe_data["schedules"][schedule]["wt"]
 
-image_label.pack(pady=10)
+inner_diameter = od - (2 * wt)
 
-# ============================================================
-# CALCULATION FUNCTION
-# ============================================================
+insertion_depth = (od / 2) + valve_height
 
-def calculate():
+upstream_D = installation_rules[condition]["upstream_D"]
 
-    result_box.delete("1.0", "end")
+downstream_D = installation_rules[condition]["downstream_D"]
 
-    # GET INPUTS
+upstream_distance = inner_diameter * upstream_D
 
-    pipe_size = pipe_option.get()
-    schedule = schedule_option.get()
-    condition = condition_option.get()
+downstream_distance = inner_diameter * downstream_D
 
-    valve_height = float(valve_entry.get())
+point_to_point = upstream_distance + downstream_distance
 
-    # PIPE DATA
+# =========================================================
+# INSTALLATION MODE
+# =========================================================
 
-    od = pipe_database[pipe_size]["od"]
+if inner_diameter > 200:
+    installation_mode = "100 mm OFF-CENTER"
+else:
+    installation_mode = "CENTER INSTALLATION"
 
-    wt = pipe_database[pipe_size]["schedules"][schedule]["wt"]
+# =========================================================
+# RIGHT SIDE OUTPUT
+# =========================================================
 
-    # CALCULATE ID
+with right_col:
 
-    inner_diameter = od - (2 * wt)
+    st.header("OUTPUT - INSTALLATION SUMMARY")
 
-    # INSTALLATION DEPTH
+    metric1, metric2, metric3 = st.columns(3)
 
-    insertion_depth = (od / 2) + valve_height
+    metric1.metric(
+        "Insertion Depth",
+        f"{insertion_depth:.2f} mm"
+    )
 
-    # INSTALLATION RULES
+    metric2.metric(
+        "Upstream Distance",
+        f"{upstream_distance:.2f} mm"
+    )
 
-    upstream_D = installation_rules[condition]["upstream_D"]
+    metric3.metric(
+        "Downstream Distance",
+        f"{downstream_distance:.2f} mm"
+    )
 
-    downstream_D = installation_rules[condition]["downstream_D"]
+    st.divider()
 
-    # DISTANCE
+    # =====================================================
+    # INSTALLATION RESULT TABLE
+    # =====================================================
 
-    upstream_distance = inner_diameter * upstream_D
+    st.subheader("Calculation Result")
 
-    downstream_distance = inner_diameter * downstream_D
+    st.write(f"**Customer:** {customer}")
 
-    total_distance = upstream_distance + downstream_distance
+    st.write(f"**Flowmeter:** {flowmeter}")
 
-    # INSTALLATION MODE
+    st.write(f"**Pipe Size:** {pipe_size}")
 
-    if inner_diameter > 200:
-        installation_mode = "100 mm OFF-CENTER"
-    else:
-        installation_mode = "CENTER INSTALLATION"
+    st.write(f"**Pipe Schedule:** {schedule}")
 
-    # OUTPUT
+    st.write(f"**Installation Condition:** {condition}")
 
-    output = f"""
+    st.write(f"**Installation Mode:** {installation_mode}")
 
-CUSTOMER:
-{customer_entry.get()}
+    st.divider()
 
-====================================
+    st.write(f"### Pipe Information")
 
-FLOWMETER:
-{flowmeter_option.get()}
+    st.write(f"Outer Diameter (OD): **{od:.2f} mm**")
 
-PIPE SIZE:
-{pipe_size}
+    st.write(f"Wall Thickness (WT): **{wt:.2f} mm**")
 
-PIPE SCHEDULE:
-{schedule}
+    st.write(f"Inner Diameter (ID): **{inner_diameter:.2f} mm**")
 
-====================================
+    st.divider()
 
-PIPE OUTER DIAMETER:
-{od:.2f} mm
+    st.write(f"### Installation Distance")
 
-WALL THICKNESS:
-{wt:.2f} mm
+    st.write(f"Upstream Distance: **{upstream_distance:.2f} mm**")
 
-INNER DIAMETER:
-{inner_diameter:.2f} mm
+    st.write(f"Downstream Distance: **{downstream_distance:.2f} mm**")
 
-====================================
+    st.write(f"Point-to-Point Distance: **{point_to_point:.2f} mm**")
 
-INSTALLATION MODE:
-{installation_mode}
+    st.divider()
 
-INSERTION DEPTH:
-{insertion_depth:.2f} mm
+    # =====================================================
+    # IMAGE
+    # =====================================================
 
-====================================
+    st.subheader("Installation Diagram")
 
-UPSTREAM DISTANCE:
-{upstream_distance:.2f} mm
+    image = Image.open("s401_installation.png")
 
-DOWNSTREAM DISTANCE:
-{downstream_distance:.2f} mm
+    st.image(
+        image,
+        use_container_width=True
+    )
 
-POINT TO POINT DISTANCE:
-{total_distance:.2f} mm
-
-====================================
-
-FLOW CONDITION:
-{condition}
-
-"""
-
-    result_box.insert("1.0", output)
-
-# ============================================================
-# CALCULATE BUTTON
-# ============================================================
-
-calculate_button = ctk.CTkButton(
-    left_frame,
-    text="GENERATE INSTALLATION",
-    command=calculate,
-    height=50,
-    font=("Arial", 18, "bold")
-)
-
-calculate_button.pack(pady=30)
-
-# ============================================================
-# RUN APP
-# ============================================================
-
-app.mainloop()
+    st.success(
+        f"Minimum Point-to-Point Distance Required = {point_to_point:.2f} mm"
+    )
