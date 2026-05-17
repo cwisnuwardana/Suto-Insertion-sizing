@@ -101,6 +101,7 @@ installation_rules = {
 # TITLE
 # =====================================================
 
+st.image("suto_logo.png", width=460)
 st.title("SUTO Flowmeter Installation Calculator")
 
 st.write("Thermal Mass Flowmeter Installation Tool")
@@ -295,8 +296,8 @@ with right_col:
 
         try:
             logo = RLImage("suto_logo.png")
-            logo.drawHeight = 50
-            logo.drawWidth = 200
+            logo.drawHeight = 60
+            logo.drawWidth = 260
             elements.append(logo)
         except:
             pass
