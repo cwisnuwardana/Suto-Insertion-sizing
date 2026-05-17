@@ -73,7 +73,7 @@ st.divider()
 left_col, right_col = st.columns([1, 2])
 
 # =====================================================
-# LEFT INPUT
+# LEFT SIDE INPUT
 # =====================================================
 
 with left_col:
@@ -155,7 +155,7 @@ else:
     installation_mode = "CENTER INSTALLATION"
 
 # =====================================================
-# RIGHT OUTPUT
+# RIGHT SIDE OUTPUT
 # =====================================================
 
 with right_col:
@@ -170,12 +170,12 @@ with right_col:
     )
 
     col2.metric(
-        "Upstream",
+        "Upstream Distance",
         f"{upstream_distance:.2f} mm"
     )
 
     col3.metric(
-        "Downstream",
+        "Downstream Distance",
         f"{downstream_distance:.2f} mm"
     )
 
@@ -186,8 +186,6 @@ with right_col:
     st.write(f"Customer: {customer}")
 
     st.write(f"Flowmeter: {flowmeter}")
-
-    st.write(f"Condition: {condition}")
 
     st.write(f"Installation Mode: {installation_mode}")
 
@@ -211,7 +209,7 @@ with right_col:
 
     try:
 
-        image = Image.open("assets/s401_installation.png")
+        image = Image.open("s401_installation.png")
 
         st.image(
             image,
@@ -221,6 +219,5 @@ with right_col:
     except:
 
         st.error(
-            "Image not found. "
-            "Please upload assets/s401_installation.png"
+            "s401_installation.png not found"
         )
