@@ -3,7 +3,7 @@
 # PROFESSIONAL ENGINEERING GUI
 # ============================================================
 
-import customtkinter as ctk
+import streamlit as st 
 from PIL import Image
 import math
 
