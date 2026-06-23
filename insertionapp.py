@@ -7,7 +7,7 @@ from reportlab.platypus import (
     TableStyle,
     Image as RLImage
 )
-
+from suto_footer import (show_suto_footer)
 from reportlab.lib import colors
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet
@@ -663,3 +663,4 @@ st.download_button(
     file_name="suto_installation_report.pdf",
     mime="application/pdf"
 )
+show_suto_footer()
