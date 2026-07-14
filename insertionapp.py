@@ -337,9 +337,9 @@ downstream_D = installation_rules[
     installation_condition
 ]["downstream_D"]
 
-upstream_mm = od_mm * upstream_D
+upstream_mm = od * upstream_D
 
-downstream_mm = od_mm * downstream_D
+downstream_mm = od * downstream_D
 
 point_to_point_mm = (
     upstream_mm +
