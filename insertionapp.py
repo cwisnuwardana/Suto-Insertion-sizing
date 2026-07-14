@@ -301,7 +301,7 @@ with left_col:
 
     valve_height = st.number_input(
         "Ball Valve Height (mm)",
-        value=70.0
+        value=87.0
     )
 
     napple_height = st.number_input(
@@ -337,9 +337,9 @@ downstream_D = installation_rules[
     installation_condition
 ]["downstream_D"]
 
-upstream_mm = dn * upstream_D
+upstream_mm = id_mm * upstream_D
 
-downstream_mm = dn * downstream_D
+downstream_mm = id_mm * downstream_D
 
 point_to_point_mm = (
     upstream_mm +
